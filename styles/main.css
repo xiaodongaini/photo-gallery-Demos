@@ -24,6 +24,27 @@ html,body{
 	background-color: #ddd;
 }
 
+.img-figure{
+	position: absolute;
+	width:320px;
+	height: 360px;
+	margin:0;
+	padding: 40px;
+	box-sizing: border-box;
+
+}
+
+.img-figure figcaption{
+	text-align: center;
+}
+
+.img-figure .img-title{
+	margin: 20px 0 0 0;
+	color: #a0a7a2;
+	font-size:16px;
+
+}
+
 .controller-nav{
 	position: absolute;
 	left: 0;
