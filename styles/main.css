@@ -30,7 +30,9 @@ html,body{
 	height: 360px;
 	margin:0;
 	padding: 40px;
+	background-color: #fff;
 	box-sizing: border-box;
+	cursor: pointer;
 
 }
 
