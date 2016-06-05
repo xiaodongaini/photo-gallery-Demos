@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>React 图片画廊</title>
+	<link rel="stylesheet" href="styles/main.css">
+	<script src="https://cdn.bootcss.com/react/15.1.0/react.js"></script>
+	<script src="https://cdn.bootcss.com/react/15.1.0/react-dom.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+	
+</head>
+<body>
+	<div id="content" class="content">
+  	
+  	</div>
+</body>
+	<script type="text/javascript" src="script/imageDatas.js"></script>
+	<script type="text/babel">
+		//console.log(imagesDatas);
+		//利用自执行函数，将图片名信息转换为图片路径信息
+		imagesDatas = (function getImageURL(imageDatasArr){
+			for(var i=0, j=imageDatasArr.length; i<j; i++){
+				var singleImageData = imageDatasArr[i];
+				singleImageData.imageURL = '../images/' + singleImageData.fileName;
+				imageDatasArr[i] = singleImageData;
+			}
+			return imageDatasArr;
+		})(imagesDatas);
+
+		var GalleryByReactApp = React.createClass({
+			render: function(){
+				return (
+					<section className="stage">
+						<section className="img-sec">
+						</section>
+						<nav className="controller-nav">
+						</nav>
+					</section>
+				);
+			}
+		});
+		ReactDOM.render(<GalleryByReactApp />, document.getElementById('content'));
+	</script>
+</html>
