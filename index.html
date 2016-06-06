@@ -36,22 +36,66 @@
     		return Math.ceil(Math.random() * (high - low) + low);
 		}
 
+		/*
+		*获取一个0到30°的正负值度数
+		*/
+		function get30DegRandom(){
+			return ((Math.random() > 0.5 ? ' ':'-') + Math.ceil(Math.random() * 30));
+		}
+
 		var ImgFigure = React.createClass({
+
+			/*
+			*imgFigure 的点击处理函数 handleClick
+			*/
+
+			handleClick: function(e){
+				if(this.props.arrange.isCenter){
+					this.props.inverse();
+				}else{
+					this.props.center();
+				}
+				
+				e.stopPropagation();
+				e.preventDefault();
+			},
+
 			render: function(){
 
 				var styleObj = {};
 
+				//如果props中制定了这张图片的位置，则使用
 				if(this.props.arrange.pos){
 					styleObj = this.props.arrange.pos;
 				}
 
+				//如果图片的旋转角度有值且不为0，则添加旋转角度
+				if(this.props.arrange.rotate){
+					(['-moz-','-ms-','-webkit-',' ']).forEach(function(value){
+						styleObj[value + 'transform'] = 'rotate(' + this.props.arrange.rotate + 'deg)';
+					}.bind(this));
+					
+				}
+
+				if(this.props.arrange.isCenter){
+					styleObj.zIndex = 11;
+				}
+
+				var imgFigureClassName = "img-figure";
+					imgFigureClassName += this.props.arrange.isInverse ? ' is-inverse': '';
+
 				return (
-					<figure className="img-figure" style = {styleObj}>
+					<figure className={imgFigureClassName} style={styleObj} onClick={this.handleClick}>
 						<img src={this.props.data.imageURL} 
 							alt={this.props.data.title}
 						/>
 						<figcaption>
 							<h2 className="img-title">{this.props.data.title}</h2>
+							<div className="img-back" onClick={this.handleClick}>
+								<p>
+									{this.props.data.desc}
+								</p>
+							</div>
 						</figcaption>
 					</figure>
 				);
@@ -74,6 +118,25 @@
         			topY: [0, 0]
     			}
   			},
+
+  			/*
+  			* 翻转图片
+  			*@param index 输入当前被执行 inverse 操作的图片对应的图片数组的 index 值
+  			*@return {function} 这是一个闭包函数，其内 return 一个真正待被执行的函数
+  			*/
+  			inverse: function(index){
+  				return function(){
+  					var imgsArrangeArr = this.state.imgsArrangeArr;
+
+  					imgsArrangeArr[index].isInverse = !(imgsArrangeArr[index].isInverse);
+
+  					this.setState({
+  						imgsArrangeArr: imgsArrangeArr
+  					});
+
+  				}.bind(this);
+  			},
+
   			/*
   			*重新布局所有图片
   			*@param centerIndex 指定居中排布那个图片
@@ -91,9 +154,10 @@
         		vPosRangeX = vPosRange.x,
 
         		imgsArrangeTopArr = [],
-        		topImgNum = Math.floor(Math.random() * 2),    // 取一个或者不取
+        		topImgNum = Math.floor(Math.random() * 2),    // 取一个或者不取，放到布局上侧
         		topImgSpliceIndex = 0,
 
+        		//这时候imgsArrangeArr数组会减去居中的图片
         		imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex, 1);
 
         		// 首先居中 centerIndex 的图片, 居中的 centerIndex 的图片不需要旋转
@@ -104,7 +168,9 @@
         		};
 
         		// 取出要布局上侧的图片的状态信息
+        		//得到上侧布局的图片的 index
         		topImgSpliceIndex = Math.ceil(Math.random() * (imgsArrangeArr.length - topImgNum));
+        		//得到上侧布局的图片数组
         		imgsArrangeTopArr = imgsArrangeArr.splice(topImgSpliceIndex, topImgNum);
 
         		// 布局位于上侧的图片
@@ -114,6 +180,8 @@
                   			top: getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1]),
                   			left: getRangeRandom(vPosRangeX[0], vPosRangeX[1])
               			},
+              			rotate: get30DegRandom(),
+              			isCenter: false
             		};
         		});
 
@@ -132,7 +200,9 @@
               			pos: {
                   			top: getRangeRandom(hPosRangeY[0], hPosRangeY[1]),
                   			left: getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
-              			}
+              			},
+              			rotate: get30DegRandom(),
+              			isCenter: false
             		};
 
         		}
@@ -148,6 +218,12 @@
         		});	
   			},
 
+  			center: function(index){
+  				return function(){
+  					this.rearrange(index);
+  				}.bind(this);
+  			},
+
   			getInitialState: function(){
   				return {
   					imgsArrangeArr: [
@@ -155,7 +231,10 @@
   							pos: {
   								left: 0,
   								top: 0
-  							}
+  							},
+  							rotate: 0,   //旋转角度
+  							isInverse: false,    //是否正反面
+  							isCenter: false      //图片是否居中
   						}*/
   					]
   				};
@@ -212,11 +291,14 @@
 							pos: {
 								left: 0,
 								top: 0
-							}
+							},
+							rotate: 0,
+							isInverse: false,
+							isCenter: false
 							
 						}
 					}
-					imgFigures.push(<ImgFigure key={value.fileName} data={value} ref={'imgFigure' + index} arrange={this.state.imgsArrangeArr[index]}/>);
+					imgFigures.push(<ImgFigure key={value.fileName} data={value} ref={'imgFigure' + index} arrange={this.state.imgsArrangeArr[index]} inverse={this.inverse(index)} center={this.center(index)} />);
 				}.bind(this));
 
 				return (
